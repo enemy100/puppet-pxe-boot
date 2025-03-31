@@ -303,16 +303,12 @@ The network configuration system supports several network setups:
 - `/puppet-pxe`: Contains the Puppet module for PXE boot automation
 - `/code`: Contains example code snippets and sample configurations
 
-## Related Documentation
-
-For the full documentation on the PXE boot implementation, see [pxe_puppet_github_documentation.md](../pxe_puppet_github_documentation.md) in the parent directory.
-
 ## Prerequisites
 
 To implement this PXE boot solution, you need:
 
 - A Puppet master server
-- DHCP server (see the [dhcp](../dhcp) module)
+- DHCP server (see the [dhcp]([../dhcp](https://github.com/enemy100/puppet-dhcp)) module)
 - HTTP server (Apache)
 - TFTP server
 - Access to OS installation media 
