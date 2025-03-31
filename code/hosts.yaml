@@ -1,0 +1,90 @@
+---
+hosts:
+  - hostname: "webserver01"
+    type: "web"
+    ip_address: "10.0.1.10"
+    swap_size: "2000"
+    aliases: []
+    network:
+      primary_interface:
+        device: "eth0"
+        mac_address: "aa:bb:cc:dd:ee:10"
+        bootproto: "dhcp"
+        onboot: "yes"
+        type: "Ethernet"
+      second_interface:
+        device: "eth1"
+        mac_address: "aa:bb:cc:dd:ee:11"
+        bootproto: "static"
+        ipaddr: "10.0.2.10"
+        netmask: "255.255.255.0"
+        type: "Ethernet"
+        onboot: "yes"
+
+  - hostname: "dbserver01"
+    type: "database"
+    ip_address: "10.0.1.20"
+    swap_size: "4000"
+    aliases:
+      - "db"
+      - "database"
+    network:
+      primary_interface:
+        device: "eth0"
+        mac_address: "aa:bb:cc:dd:ee:20"
+        bootproto: "dhcp"
+        onboot: "yes"
+        type: "Ethernet"
+      bond_interfaces:
+        bond0:
+          device: "bond0"
+          bootproto: "none"
+          onboot: "yes"
+          type: "Bond"
+          bonding_opts: "mode=802.3ad miimon=100"
+          slaves:
+            - name: "eth1"
+              mac_address: "aa:bb:cc:dd:ee:21"
+            - name: "eth2"
+              mac_address: "aa:bb:cc:dd:ee:22"
+          vlans:
+            - id: 101
+              ipaddr: "10.0.3.20"
+              netmask: "255.255.255.0"
+
+  - hostname: "appserver01"
+    type: "application"
+    ip_address: "10.0.1.30"
+    swap_size: "2000"
+    aliases: []
+    network:
+      primary_interface:
+        device: "eth0"
+        mac_address: "aa:bb:cc:dd:ee:30"
+        bootproto: "dhcp"
+        onboot: "yes"
+        type: "Ethernet"
+      second_interface:
+        device: "eth1"
+        mac_address: "aa:bb:cc:dd:ee:31"
+        bootproto: "static"
+        ipaddr: "10.0.2.30"
+        netmask: "255.255.255.0"
+        type: "Ethernet"
+        onboot: "yes"
+      third_interface:
+        device: "eth2"
+        mac_address: "aa:bb:cc:dd:ee:32"
+        bootproto: "static"
+        ipaddr: "10.0.3.30"
+        netmask: "255.255.255.0"
+        type: "Ethernet"
+        onboot: "yes"
+      fourth_interface:
+        device: "eth3"
+        mac_address: "aa:bb:cc:dd:ee:33"
+        bootproto: "static"
+        ipaddr: "10.0.4.30"
+        netmask: "255.255.255.0"
+        type: "Ethernet"
+        onboot: "yes" 

@@ -1,0 +1,29 @@
+<%- | Hash $network | -%>
+# Persistent network interface rules for <%= $facts['hostname'] %>
+
+# Primary interface
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="<%= $network['primary_interface']['mac_address'] %>", NAME="eth0"
+
+<% if $network['second_interface'] { -%>
+# Second interface
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="<%= $network['second_interface']['mac_address'] %>", NAME="eth1"
+<% } -%>
+
+<% if $network['third_interface'] { -%>
+# Third interface
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="<%= $network['third_interface']['mac_address'] %>", NAME="eth2"
+<% } -%>
+
+<% if $network['fourth_interface'] { -%>
+# Fourth interface
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="<%= $network['fourth_interface']['mac_address'] %>", NAME="eth3"
+<% } -%>
+
+<% if $network['bond_interfaces'] { -%>
+<%   $network['bond_interfaces'].each |$bond_name, $bond_config| { -%>
+<%     $bond_config['slaves'].each |$slave| { -%>
+# Bond slave interface
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="<%= $slave['mac_address'] %>", NAME="<%= $slave['name'] %>"
+<%     } -%>
+<%   } -%>
+<% } -%> 

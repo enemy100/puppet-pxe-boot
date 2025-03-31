@@ -1,0 +1,97 @@
+#platform=EFI
+<%- | Hash $host, String $server_fqdn, String $domain | -%>
+# System language
+lang en_US
+# System keyboard
+keyboard us
+# System timezone
+timezone --utc America/New_York
+# System hostname
+network --hostname=<%= $host['hostname'] %>.<%= $domain %>
+# Root password
+rootpw --iscrypted $6$randomsalt$hashedpasswordwouldbehere
+
+# Network information - Configure ONLY the primary interface for installation
+# Additional interfaces will be configured by the network module after installation
+network --onboot=yes --device=<%= $host['network']['primary_interface']['device'] %> --bootproto=dhcp --noipv6
+
+# Firewall configuration
+firewall --disabled
+# SELinux configuration
+selinux --disabled
+# Do not configure the X Window System
+skipx
+# System authorization information
+authselect select sssd --force
+# Use text mode install
+text
+# Reboot after installation
+reboot
+# Clear the Master Boot Record
+zerombr
+
+# Disk partitioning information
+clearpart --all --initlabel
+<% if $host['swap_size'] { -%>
+part /boot/efi --fstype=efi --size=600
+part /boot --fstype=xfs --size=1024
+part swap --size=<%= $host['swap_size'] %>
+part / --fstype=xfs --grow
+<% } else { -%>
+autopart
+<% } -%>
+
+# Package selection
+%packages
+@core
+# Ensure network packages are installed for the network module
+NetworkManager-team
+teamd
+%end
+
+# Post installation scripts
+%post
+# Set hostname
+echo "<%= $host['hostname'] %>.<%= $domain %>" > /etc/hostname
+hostnamectl set-hostname <%= $host['hostname'] %>.<%= $domain %>
+
+# Remove existing repositories
+rm -rf /etc/yum.repos.d/*
+
+# Add Puppet repository
+cat <<EOF > /etc/yum.repos.d/puppet.repo
+[puppet]
+name=Puppet Repository
+baseurl=http://<%= $server_fqdn %>/puppet
+enabled=1
+gpgcheck=0
+EOF
+
+# Install Puppet Agent
+dnf install -y puppet-agent
+
+# Configure puppet.conf
+cat <<EOF > /etc/puppetlabs/puppet/puppet.conf
+[main]
+certname = <%= $host['hostname'] %>.<%= $domain %>
+server = <%= $server_fqdn %>
+
+[agent]
+environment = production
+report = true
+server = <%= $server_fqdn %>
+EOF
+
+# Enable and start Puppet Agent to configure network through the network module
+systemctl enable puppet
+systemctl start puppet
+
+# Create a marker file to indicate network configuration is needed
+echo "# This server requires network configuration by the network module" > /etc/puppetlabs/puppet/network_config_needed
+
+# Restart network service - only primary interface configured
+systemctl restart NetworkManager
+
+# Create marker file for kickstart completion
+touch /root/kickstart_complete
+%end 

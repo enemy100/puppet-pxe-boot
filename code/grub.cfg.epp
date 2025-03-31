@@ -1,0 +1,26 @@
+<% | $hosts, $server_fqdn | -%>
+set timeout=5
+set default=0
+
+# Capture the MAC address provided by UEFI firmware
+insmod efi
+set macaddr=${net_default_mac}
+
+menuentry 'Install Linux' {
+    set root=(tftp,<%= $server_fqdn %>)
+
+    linuxefi /linux/images/pxeboot/vmlinuz ip=dhcp \
+        inst.repo=http://<%= $server_fqdn %>/linux/ \
+        inst.ks=http://<%= $server_fqdn %>/linux/kickstarts/ks_${macaddr}.cfg \
+        console=tty0 console=ttyS0,115200n8
+
+    initrdefi /linux/images/pxeboot/initrd.img
+}
+
+# Fallback menu in case MAC address is not recognized
+menuentry 'Default Installation' {
+    linuxefi /linux/images/pxeboot/vmlinuz ip=dhcp \
+        inst.repo=http://<%= $server_fqdn %>/linux/ \
+        inst.ks=http://<%= $server_fqdn %>/linux/kickstarts/ks_default.cfg
+    initrdefi /linux/images/pxeboot/initrd.img
+} 
