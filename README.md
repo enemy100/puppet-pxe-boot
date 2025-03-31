@@ -308,7 +308,7 @@ The network configuration system supports several network setups:
 To implement this PXE boot solution, you need:
 
 - A Puppet master server
-- DHCP server (see the [dhcp] https://github.com/enemy100/puppet-dhcp module)
+- DHCP server (see the [dhcp] (https://github.com/enemy100/puppet-dhcp) module)
 - HTTP server (Apache)
 - TFTP server
 - Access to OS installation media 
